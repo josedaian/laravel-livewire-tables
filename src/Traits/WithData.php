@@ -85,6 +85,7 @@ trait WithData
         $table = false;
         $foreign = false;
         $other = false;
+        $connection = false;
         $lastQuery = clone $this->getBuilder();
 
         foreach ($column->getRelations() as $relationPart) {
@@ -96,6 +97,7 @@ trait WithData
                     $table = $model->getRelated()->getTable();
                     $foreign = $model->getQualifiedForeignKeyName();
                     $other = $model->getQualifiedParentKeyName();
+                    $connection = $model->getRelated()->getConnection()->getDatabaseName();
 
                     break;
 
@@ -103,11 +105,13 @@ trait WithData
                     $table = $model->getRelated()->getTable();
                     $foreign = $model->getQualifiedForeignKeyName();
                     $other = $model->getQualifiedOwnerKeyName();
+                    $connection = $model->getRelated()->getConnection()->getDatabaseName();
 
                     break;
             }
 
             if ($table) {
+                $table = $connection ? sprintf('%s.%s', $connection, $table) : $table;
                 $this->setBuilder($this->performJoin($table, $foreign, $other));
             }
 
